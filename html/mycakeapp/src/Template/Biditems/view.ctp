@@ -31,6 +31,10 @@
             <td><?= h($biditem->name) ?></td>
         </tr>
         <tr>
+            <th scope="row"><?= __('Detail') ?></th>
+            <td><?= h($biditem->detail) ?></td>
+        </tr>
+        <tr>
             <th scope="row"><?= __('Id') ?></th>
             <td><?= $this->Number->format($biditem->id) ?></td>
         </tr>
