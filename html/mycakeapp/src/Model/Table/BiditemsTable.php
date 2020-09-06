@@ -78,10 +78,36 @@ class BiditemsTable extends Table
             ->maxLength('detail', 300)
             ->allowEmptyString('detail');
 
+        // CRUD用のバリデーション
         $validator
             ->scalar('image')
             ->maxLength('image', 255)
             ->allowEmptyString('image');
+
+        // 画像アップロード用のバリデーション
+        $validator
+            ->allowEmptyFile('image_file') // 必須にしたい場合は外せばおｋ
+            ->add('image_file', 'uploadError', [
+                'rule' => [ 'uploadError' ],
+                'message' => 'ファイルアップロードに失敗しました。'
+            ])
+            // ファイルサイズのチェックは割愛
+            // 上限を決めたい場合は先にWebサーバの設定を変更しないと
+            // 2MBを超えるファイルをアップロードすると
+            // 413 Request Entity Too Largeになる(´・ω・｀)
+            ->add('image_file', 'extension', [
+                'rule' => [ 'extension', [ 'jpg', 'jpeg', 'png', 'gif' ] ],
+                'message' => 'ファイルの拡張子がjpg, jpeg, png, gif(大文字含む)のみアップロード可能です。',
+                // 有効化していないと以降のバリデーションも走って
+                // エラーメッセージが複数表示されるのでぶちゃいくになる
+                'last' => true
+                ]
+            )
+            ->add('image_file', 'mimeType', [
+                'rule' => [ 'mimeType', [ 'image/jpeg', 'image/png', 'image/gif' ] ],
+                'message' => 'ファイルが画像ではありません。'
+                ]
+            );
 
         $validator
             ->boolean('finished')

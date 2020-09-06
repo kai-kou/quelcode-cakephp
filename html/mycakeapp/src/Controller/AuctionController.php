@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 
+use Cake\Core\Configure;
 use Cake\Event\Event; // added.
 use Exception; // added.
 
@@ -87,9 +88,19 @@ class AuctionController extends AuctionBaseController
 		// POST送信時の処理
 		if ($this->request->is('post')) {
 			// $biditemにフォームの送信内容を反映
-			$biditem = $this->Biditems->patchEntity($biditem, $this->request->getData());
+			$reqData = $this->request->getData();
+			$biditem = $this->Biditems->patchEntity($biditem, $reqData);
 			// $biditemを保存する
 			if ($this->Biditems->save($biditem)) {
+				// 画像がアップロードされていたら画像を保存してDBへ反映する
+				if (isset($reqData['image_file'])) {
+					$biditem['image'] = $this->saveBidImage($reqData, $biditem);
+					if (isset($biditem['image'])) {
+						if (!$this->Biditems->save($biditem)) {
+							$this->Flash->error(__('保存に失敗しました。もう一度入力下さい。'));
+						}
+					}
+				}
 				// 成功時のメッセージ
 				$this->Flash->success(__('保存しました。'));
 				// トップページ（index）に移動
@@ -100,6 +111,47 @@ class AuctionController extends AuctionBaseController
 		}
 		// 値を保管
 		$this->set(compact('biditem'));
+	}
+
+	// サーバにアップロードされたファイルを保存する
+	private function saveBidImage($reqData, $biditem) {
+		// ファイル名を生成する
+		$imageExt = pathinfo($reqData['image_file']['name'], PATHINFO_EXTENSION);
+		$newFileName = "{$biditem['id']}.$imageExt";
+
+		// 画像の一時保存パスを取得する
+		$tmpImgPath = $reqData['image_file']['tmp_name'];
+
+		// 設定情報から画像保存パスを取得する
+		$imgRoot = join([
+			Configure::readOrFail('App.wwwRoot'),
+			Configure::readOrFail('App.imageBaseUrl'),
+		]);
+
+		// オークション用の設定情報からパスを取得する
+		$imgPath = Configure::readOrFail('Auction.biditemImgBaseUrl');
+
+		// パス結合はDockerかLinuxサーバで動かす前提
+		$saveDir = join([$imgRoot, $imgPath]);
+		$saveImgPath = join([$saveDir, $newFileName]);
+
+		// gitリポジトリに予めフォルダを含めておくので保険
+		if (!file_exists($saveDir)) {
+			mkdir($saveDir, 0777, true);
+		}
+
+		$result = '';
+		if (move_uploaded_file($tmpImgPath, $saveImgPath)) {
+			// Viewで利用できるようにファイルパスを設定する
+			$result = join([$imgPath, $newFileName]);
+		}
+		else {
+			// ファイル保存に失敗したら空にしちゃう
+			// 課題じゃなかったらエラー処理を実装すべきところ
+			$result = '';
+		}
+
+		return $result;
 	}
 
 	// 入札の処理
