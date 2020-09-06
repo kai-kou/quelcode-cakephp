@@ -5,6 +5,7 @@
 /logs/*
 /tmp/*
 /vendor/*
+/webroot/img/auction/biditems/*
 
 # OS generated files #
 ######################

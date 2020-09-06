@@ -13,6 +13,10 @@
 	<td><?= nl2br(h($biditem->detail)) ?></td>
 </tr>
 <tr>
+	<th scope="row">商品画像</th>
+	<td><?= $this->Html->image($biditem->image, ['width' => '80%']) ?></td>
+</tr>
+<tr>
 	<th scope="row">商品ID</th>
 	<td><?= $this->Number->format($biditem->id) ?></td>
 </tr>
