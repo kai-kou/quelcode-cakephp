@@ -35,6 +35,10 @@
             <td><?= h($biditem->detail) ?></td>
         </tr>
         <tr>
+            <th scope="row"><?= __('Image') ?></th>
+            <td><?= h($biditem->image) ?></td>
+        </tr>
+        <tr>
             <th scope="row"><?= __('Id') ?></th>
             <td><?= $this->Number->format($biditem->id) ?></td>
         </tr>

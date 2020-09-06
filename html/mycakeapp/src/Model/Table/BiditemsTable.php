@@ -79,6 +79,11 @@ class BiditemsTable extends Table
             ->allowEmptyString('detail');
 
         $validator
+            ->scalar('image')
+            ->maxLength('image', 255)
+            ->allowEmptyString('image');
+
+        $validator
             ->boolean('finished')
             ->requirePresence('finished', 'create')
             ->notEmptyString('finished');
