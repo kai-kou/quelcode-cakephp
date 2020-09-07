@@ -29,8 +29,8 @@
 	<td><?= h($biditem->created) ?></td>
 </tr>
 <tr>
-	<th scope="row"><?= __('終了した？') ?></th>
-	<td><?= $biditem->finished ? __('Yes') : __('No'); ?></td>
+	<th scope="row">終了まで</th>
+	<td><span id="timer"></span></td>
 </tr>
 </table>
 <div class="related">
@@ -82,3 +82,12 @@
 	<p><?='※入札は、終了しました。' ?></p>
 	<?php endif; ?>
 </div>
+
+<script src="/js/auction-countdown.js"></script>
+<script>
+var elementId = 'timer';
+var now = '<?php echo date('Y/m/d H:i:s'); ?>';
+var due = '<?php echo $biditem->endtime; ?>';
+countdown(elementId, now, due);
+timer = setInterval(function () { countdown(elementId, now, due) }, 1000);
+</script>
